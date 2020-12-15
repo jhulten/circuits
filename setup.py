@@ -14,7 +14,7 @@ def read_file(filename):
 setup(
     name="circuits",
     description="Asynchronous Component based Event Application Framework",
-    long_description=open("README.rst").read().replace(
+        long_description=open("README.rst").read().replace(
         ".. include:: examples/index.rst",
         read_file("examples/index.rst")
     ),
@@ -40,7 +40,6 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
@@ -60,7 +59,8 @@ setup(
         "Topic :: Software Development :: Libraries :: Application Frameworks",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: System :: Clustering",
-        "Topic :: System :: Distributed Computing"],
+        "Topic :: System :: Distributed Computing",
+    ],
     license="MIT",
     keywords="event framework distributed concurrent component asynchronous",
     platforms="POSIX",
