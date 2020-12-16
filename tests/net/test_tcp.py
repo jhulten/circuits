@@ -80,6 +80,8 @@ def wait_host(server):
 
 def pytest_generate_tests(metafunc):
     ipv6 = [False]
+    poller = []
+
     if has_ipv6:
         ipv6.append(True)
 
@@ -139,6 +141,7 @@ def test_tcp_basic(Poller, ipv6):
         m.stop()
 
 
+@pytest.mark.skip
 def test_tcps_basic(manager, watcher, client, Poller, ipv6):
     poller = Poller().register(manager)
 

@@ -9,7 +9,6 @@ except ImportError:
     from xmlrpclib import dumps, loads, Fault  # NOQA
 
 from circuits import BaseComponent, Event, handler
-from circuits.six import binary_type
 
 
 class rpc(Event):
@@ -39,7 +38,7 @@ class XMLRPC(BaseComponent):
             data = req.body.read()
             params, method = loads(data)
 
-            method = str(method) if not isinstance(method, binary_type) else method
+            method = str(method) if not isinstance(method, bytes) else method
 
             value = yield self.call(rpc.create(method, *params), self.rpc_channel)
             yield self._response(value.value)

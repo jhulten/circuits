@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from circuits.six.moves.urllib_parse import parse_qsl
-from circuits.six import iteritems, string_types
+from urllib.parse import parse_qsl
 
 
 class QueryStringToken(object):
@@ -16,7 +15,7 @@ class QueryStringParser(object):
     def __init__(self, data):
         self.result = {}
 
-        if isinstance(data, string_types[0]):
+        if isinstance(data, str):
             sorted_pairs = self._sorted_from_string(data)
         else:
             sorted_pairs = self._sorted_from_obj(data)
@@ -40,7 +39,7 @@ class QueryStringParser(object):
             except AttributeError:
                 # webob.multidict.MultiDict
                 # werkzeug.datastructures.MultiDict
-                items = iteritems(data)
+                items = data.items()
 
         return sorted(items, key=lambda p: p[0])
 

@@ -2,6 +2,8 @@
 from circuits.web import Controller
 from circuits.web.client import Client, request
 
+import pytest
+
 
 class Root(Controller):
 
@@ -42,6 +44,7 @@ def make_request(webapp, path):
     return response.status, s
 
 
+@pytest.mark.timeout(2)
 def test_root(webapp):
     status, content = make_request(webapp, webapp.server.http.base)
 
@@ -49,6 +52,7 @@ def test_root(webapp):
     assert content == b"Hello World!"
 
 
+@pytest.mark.timeout(2)
 def test_root_name(webapp):
     status, content = make_request(webapp, "%s/name" % webapp.server.http.base)
 
@@ -56,6 +60,7 @@ def test_root_name(webapp):
     assert content == b"Earth"
 
 
+@pytest.mark.timeout(2)
 def test_leaf(webapp):
     status, content = make_request(
         webapp, "%s/world/country/region" % webapp.server.http.base)
@@ -64,6 +69,7 @@ def test_leaf(webapp):
     assert content == b"Hello cities!"
 
 
+@pytest.mark.timeout(2)
 def test_city(webapp):
     status, content = make_request(
         webapp, "%s/world/country/region/city" % webapp.server.http.base)

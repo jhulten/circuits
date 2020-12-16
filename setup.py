@@ -14,14 +14,14 @@ def read_file(filename):
 setup(
     name="circuits",
     description="Asynchronous Component based Event Application Framework",
-        long_description=open("README.rst").read().replace(
+    long_description=open("README.rst").read().replace(
         ".. include:: examples/index.rst",
         read_file("examples/index.rst")
     ),
     author="James Mills",
     author_email="prologic@shortcircuit.net.au",
     url="http://circuitsframework.com/",
-    download_url="http://bitbucket.org/circuits/circuits/downloads/",
+    download_url="https://github.com/circuits/circuits/releases/",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",

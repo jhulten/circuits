@@ -7,7 +7,6 @@ from io import BytesIO
 from time import time
 
 from circuits.net.sockets import BUFSIZE
-from circuits.six import binary_type, text_type
 
 from .constants import HTTP_STATUS_CODES, SERVER_VERSION
 from .errors import httperror
@@ -24,12 +23,6 @@ try:
     formatdate = partial(formatdate, usegmt=True)
 except ImportError:
     from rfc822 import formatdate  # NOQA
-
-
-try:
-    unicode
-except NameError:
-    unicode = str
 
 
 def file_generator(input, chunkSize=BUFSIZE):
@@ -246,12 +239,12 @@ class Body(object):
         if response == value:
             return
 
-        if isinstance(value, binary_type):
+        if isinstance(value, bytes):
             if value:
                 value = [value]
             else:
                 value = []
-        elif isinstance(value, text_type):
+        elif isinstance(value, str):
             if value:
                 value = [value.encode(response.encoding, self.encode_errors)]
             else:
@@ -338,7 +331,8 @@ class Response(object):
         return "{0:s} {1:s}\r\n".format(protocol, status)
 
     def __bytes__(self):
-        return str(self).encode(self.encoding)  # FIXME: this is wrong. HTTP headers must be ISO8859-1. This should only encode the body as UTF-8.
+        # FIXME: this is wrong. HTTP headers must be ISO8859-1. This should only encode the body as UTF-8.
+        return str(self).encode(self.encoding)
 
     def prepare(self):
         # Set a default content-Type if we don't have one.
@@ -350,7 +344,7 @@ class Response(object):
         if self.body is not None:
             if isinstance(self.body, bytes):
                 cLength = len(self.body)
-            elif isinstance(self.body, unicode):
+            elif isinstance(self.body, str):
                 cLength = len(self.body.encode(self.encoding))
             elif isinstance(self.body, list):
                 cLength = sum(

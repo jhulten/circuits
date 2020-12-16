@@ -15,9 +15,9 @@ from threading import RLock, Thread, current_thread
 from time import time
 from traceback import format_exc
 from types import GeneratorType
+import types
 from uuid import uuid4 as uuid
 
-from ..six import Iterator, create_bound_method, next
 from ..tools import tryimport
 from .events import Event, exception, generate_events, signal, started, stopped
 from .handlers import handler
@@ -60,7 +60,7 @@ class ExceptionWrapper(object):
         return self.exception
 
 
-class Sleep(Iterator):
+class Sleep(object):
 
     def __init__(self, seconds):
         self._task = None
@@ -394,7 +394,7 @@ class Manager(object):
         return handlers
 
     def addHandler(self, f):
-        method = create_bound_method(f, self) if isfunction(f) else f
+        method = types.MethodType(f, self) if isfunction(f) else f
 
         setattr(self, method.__name__, method)
 

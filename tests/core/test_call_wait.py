@@ -159,6 +159,7 @@ def test_eval(manager, watcher, app):
     assert value == 3
 
 
+@pytest.mark.skip
 @pytest.mark.xfail(reason='Issue #226')
 @pytest.mark.timeout(1)
 def test_wait_too_late(manager, watcher, app):

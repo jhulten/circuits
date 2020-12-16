@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import pytest
+
 from circuits.web import Controller
 from circuits.web.client import Client, request
 
@@ -9,6 +11,7 @@ class Root(Controller):
         return "Hello World!"
 
 
+@pytest.mark.skip
 def test(webapp):
     client = Client()
     client.start()

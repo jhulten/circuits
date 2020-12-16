@@ -9,7 +9,6 @@ from circuits.protocols.irc import (
     PRIVMSG, QUIT, TOPIC, USER, WHOIS, irc_color_to_ansi, joinprefix, parsemsg,
     parseprefix, strip,
 )
-from circuits.six import b, u
 
 
 class App(Component):
@@ -63,13 +62,13 @@ def test_joinprefix():
 
 
 def test_parsemsg():
-    s = b(":foo!bar@localhost NICK foobar")
+    s = b":foo!bar@localhost NICK foobar"
     source, command, args = parsemsg(s)
-    assert source == (u("foo"), u("bar"), u("localhost"))
+    assert source == ("foo", "bar", "localhost")
     assert command == "NICK"
-    assert args == [u("foobar")]
+    assert args == ["foobar"]
 
-    s = b("")
+    s = b""
     source, command, args = parsemsg(s)
     assert source == (None, None, None)
     assert command is None
@@ -129,8 +128,8 @@ def test_commands(event, data):
     (
         b":localhost NOTICE * :*** Looking up your hostname...\r\n",
         Event.create(
-            "notice", (u("localhost"), None, None), u("*"),
-            u("*** Looking up your hostname..."),
+            "notice", ("localhost", None, None), "*",
+            "*** Looking up your hostname...",
         )
     ),
 ])
@@ -148,12 +147,18 @@ def test_responses(app, data, event):
 
 
 @pytest.mark.parametrize('inp,out', [
-    ('hi \x02bold\x02 \x1ditalic\x1d \x1funderline\x1f \x1estrikethrough\x1e', 'hi \x02bold\x02 \x1b[03mitalic\x1b[23m \x1b[04munderline\x1b[24m \x1b[09mstrikethrough\x1b[29m'),
-    ('\x0300white\x03 \x0301black\x03 \x0302blue\x03 \x0303green\x03 \x0304red\x03 ', '\x1b[37mwhite\x1b[39;49m \x1b[30mblack\x1b[39;49m \x1b[34mblue\x1b[39;49m \x1b[32mgreen\x1b[39;49m \x1b[31mred\x1b[39;49m '),
-    ('\x0305brown\x03 \x0306magenta\x03 \x0307orange\x03 \x0308yellow\x03 ', '\x1b[36mbrown\x1b[39;49m \x1b[35mmagenta\x1b[39;49m \x1b[33morange\x1b[39;49m \x1b[93myellow\x1b[39;49m '),
-    ('\x0309lightgreen\x03 \x0310cyan\x03 \x0311lightcyan\x03 \x0312lightblue\x03 ', '\x1b[92mlightgreen\x1b[39;49m \x1b[36mcyan\x1b[39;49m \x1b[96mlightcyan\x1b[39;49m \x1b[94mlightblue\x1b[39;49m '),
-    ('\x0313pink\x03 \x0314grey\x03 \x0315lightgrey\x03', '\x1b[95mpink\x1b[39;49m \x1b[90mgrey\x1b[39;49m \x1b[37mlightgrey\x1b[39;49m'),
-    ('\x0300white\x03 \x0301,01black\x03 \x0301,02blue\x03 \x0301,03green\x03 \x0301,04red\x03 ', '\x1b[37mwhite\x1b[39;49m \x1b[30;40mblack\x1b[39;49m \x1b[30;44mblue\x1b[39;49m \x1b[30;42mgreen\x1b[39;49m \x1b[30;41mred\x1b[39;49m '),
+    ('hi \x02bold\x02 \x1ditalic\x1d \x1funderline\x1f \x1estrikethrough\x1e',
+     'hi \x02bold\x02 \x1b[03mitalic\x1b[23m \x1b[04munderline\x1b[24m \x1b[09mstrikethrough\x1b[29m'),
+    ('\x0300white\x03 \x0301black\x03 \x0302blue\x03 \x0303green\x03 \x0304red\x03 ',
+     '\x1b[37mwhite\x1b[39;49m \x1b[30mblack\x1b[39;49m \x1b[34mblue\x1b[39;49m \x1b[32mgreen\x1b[39;49m \x1b[31mred\x1b[39;49m '),
+    ('\x0305brown\x03 \x0306magenta\x03 \x0307orange\x03 \x0308yellow\x03 ',
+     '\x1b[36mbrown\x1b[39;49m \x1b[35mmagenta\x1b[39;49m \x1b[33morange\x1b[39;49m \x1b[93myellow\x1b[39;49m '),
+    ('\x0309lightgreen\x03 \x0310cyan\x03 \x0311lightcyan\x03 \x0312lightblue\x03 ',
+     '\x1b[92mlightgreen\x1b[39;49m \x1b[36mcyan\x1b[39;49m \x1b[96mlightcyan\x1b[39;49m \x1b[94mlightblue\x1b[39;49m '),
+    ('\x0313pink\x03 \x0314grey\x03 \x0315lightgrey\x03',
+     '\x1b[95mpink\x1b[39;49m \x1b[90mgrey\x1b[39;49m \x1b[37mlightgrey\x1b[39;49m'),
+    ('\x0300white\x03 \x0301,01black\x03 \x0301,02blue\x03 \x0301,03green\x03 \x0301,04red\x03 ',
+     '\x1b[37mwhite\x1b[39;49m \x1b[30;40mblack\x1b[39;49m \x1b[30;44mblue\x1b[39;49m \x1b[30;42mgreen\x1b[39;49m \x1b[30;41mred\x1b[39;49m '),
     ('\x0f', '\x1b[m'),
     ('\x0302blue', '\x1b[34mblue\x1b[m'),
 ])

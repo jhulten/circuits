@@ -6,10 +6,10 @@
 # This module is liberally borrowed (with modifications) from:
 # https://raw.githubusercontent.com/benoitc/http-parser/master/http_parser/pyparser.py
 import re
+import sys
 import zlib
 
-from circuits.six import MAXSIZE, PY3, b
-from circuits.six.moves.urllib_parse import urlsplit
+from urllib.parse import urlsplit
 
 from ..headers import Headers
 
@@ -102,7 +102,7 @@ class HttpParser(object):
 
     def recv_body(self):
         """ return last chunk of the parsed body"""
-        body = b("").join(self._body)
+        body = "".join(self._body)
         self._body = []
         self._partial_body = False
         return body
@@ -111,7 +111,7 @@ class HttpParser(object):
         """ Receive the last chunk of the parsed bodyand store the data
         in a buffer rather than creating a new string. """
         length = len(barray)
-        body = b("").join(self._body)
+        body = "".join(self._body)
         m = min(len(body), length)
         data, rest = body[:m], body[m:]
         barray[0:m] = data
@@ -168,20 +168,18 @@ class HttpParser(object):
         nb_parsed = 0
         while True:
             if not self.__on_firstline:
-                idx = data.find(b("\r\n"))
+                idx = data.find("\r\n")
                 if idx < 0:
                     self._buf.append(data)
                     return len(data)
                 else:
                     self.__on_firstline = True
                     self._buf.append(data[:idx])
-                    first_line = b("").join(self._buf)
-                    if PY3:
-                        first_line = str(first_line, 'unicode_escape')
+                    first_line = "".join(self._buf).encode('unicode_escape')
                     nb_parsed = nb_parsed + idx + 2
 
                     rest = data[idx + 2:]
-                    data = b("")
+                    data = ""
                     if self._parse_firstline(first_line):
                         self._buf = [rest]
                     else:
@@ -189,10 +187,10 @@ class HttpParser(object):
             elif not self.__on_headers_complete:
                 if data:
                     self._buf.append(data)
-                    data = b("")
+                    data = ""
 
                 try:
-                    to_parse = b("").join(self._buf)
+                    to_parse = "".join(self._buf)
                     ret = self._parse_headers(to_parse)
                     if not ret:
                         return length
@@ -207,7 +205,7 @@ class HttpParser(object):
 
                 if data:
                     self._buf.append(data)
-                    data = b("")
+                    data = ""
 
                 ret = self._parse_body()
                 if ret is None:
@@ -299,7 +297,7 @@ class HttpParser(object):
 
     def _parse_headers(self, data):
         if self._version == (1, 0):
-            idx = data.find(b("\r\n"))
+            idx = data.find("\r\n")
             if idx < 0:  # an empty line is required
                 return False
             if idx == 0:  # we don't have all headers
@@ -313,8 +311,8 @@ class HttpParser(object):
             raise InvalidHeader("No host header defined")
 
         # Split lines on \r\n keeping the \r\n on each line
-        lines = [(str(line, 'unicode_escape') if PY3 else line) + "\r\n"
-                 for line in data[:idx].split(b("\r\n"))]
+        lines = [line.encode('unicode_escape') + "\r\n"
+                 for line in data[:idx].split("\r\n")]
 
         # Parse headers into key/value pairs paying attention
         # to continuation lines.
@@ -353,7 +351,7 @@ class HttpParser(object):
         else:
             self._chunked = (te == 'chunked')
             if not self._chunked:
-                self._clen_rest = MAXSIZE
+                self._clen_rest = sys.maxsize
 
         # detect encoding and set decompress object
         encoding = self._headers.get('content-encoding')
@@ -370,7 +368,7 @@ class HttpParser(object):
 
     def _parse_body(self):
         if not self._chunked:
-            body_part = b("").join(self._buf)
+            body_part = "".join(self._buf)
             self._clen_rest -= len(body_part)
 
             # maybe decompress
@@ -385,7 +383,7 @@ class HttpParser(object):
                 self.__on_message_complete = True
             return
         else:
-            data = b("").join(self._buf)
+            data = "".join(self._buf)
             try:
 
                 size, rest = self._parse_chunk_size(data)
@@ -417,11 +415,11 @@ class HttpParser(object):
             return len(rest)
 
     def _parse_chunk_size(self, data):
-        idx = data.find(b("\r\n"))
+        idx = data.find("\r\n")
         if idx < 0:
             return None, None
         line, rest_chunk = data[:idx], data[idx + 2:]
-        chunk_size = line.split(b(";"), 1)[0].strip()
+        chunk_size = line.split(";", 1)[0].strip()
         try:
             chunk_size = int(chunk_size, 16)
         except ValueError:
@@ -433,7 +431,7 @@ class HttpParser(object):
         return chunk_size, rest_chunk
 
     def _parse_trailers(self, data):
-        idx = data.find(b("\r\n\r\n"))
+        idx = data.find("\r\n\r\n")
 
-        if data[:2] == b("\r\n"):
+        if data[:2] == "\r\n":
             self._trailers = self._parse_headers(data[:idx])
